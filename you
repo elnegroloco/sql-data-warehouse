@@ -1,26 +1,24 @@
-Asbestos Register Upgrade
-High-Level Requirements
-Item	Detail
-Version / status	v1.0, 13 November 2026, draft for review
-Author	Victor Peters, Business Analyst, Technology and Digital Solutions
-Programme	TOM programme, Workstream 1 (Connecting Data)
-Sources	Asbestos Register Requirements Scoping Session, 12 November 2026 (48 min), and the analyst's session notes
-Audience	Session attendees and project team
-1. Executive summary
-Users need a true asbestos register: one clear, consolidated line per room or element for each property. Today they get a list of every survey line ever recorded. Stakeholders called the current data a "treasure hunt": the same lounge ceiling can appear up to 10 to 12 times, older surveys name locations inconsistently, and the surveys behind the data are poorly labelled.
-The upgrade will be built on cleansed data in Microsoft Fabric. PIMS stays the master database, and where users will view the register is still to be decided. The session also asked for faster survey and removal updates through automation, clearer alerts, and neater asbestos information for customers.
-The biggest open item is the set of rules for merging conflicting survey results. The Asbestos & Compliance Lead will define these.
-2. Purpose and scope
+Asbestos Register Upgrade  Requirements Specification. 
+Prepared for	Workstream 1A – Connecting Data
+Prepared by	Victor Peters, Business Analyst
+Version	1.0 – draft 
+Date	16 November 2026
+
+
+ 1. Execute Summary
+Today’s asbestos register in the contractor portal is a raw list of every survey live ever recorded in PIMS. Users need a true asbestos register: one clear, consolidated line per room or element for each property. 
+This document sets out what users need, functional and non-functional requirements, risks, constraints and a list of what is to be delivered. The upgrade will be built on cleansed data in Microsoft Fabric. PIMS stays, and an updated Asbestos Register will be built on this Data
+2. Scope 
 This document captures the business needs for upgrading the asbestos register. It is the basis for agreeing priorities, design and a prototype, and it is not a solution specification.
 In scope	Out of scope
 Cleansing and consolidating asbestos data in Fabric into a property-level register	Handheld devices used by operatives
-How register data is structured, sorted, filtered and searched	Replacing PIMS, which remains the master database
-Linking register lines to their source surveys and documents	Choosing the front-end tool (PIMS contractor portal, Salesforce or other), which is still to be decided
-Rules for carrying forward and resolving survey results	Standardising contractor survey or certificate formats, which are legal documents
-Automating survey and removal updates where safe to do so	A proactive survey programme for properties with no or old surveys
-Register-based asbestos information for customer letters	Operative training on reading surveys
-3. Background and problem statement
-The current register is a raw data list pulled straight from PIMS into the contractor portal. It holds every line from every survey, which overloads users with information. This work came out of feedback from the Assets and Property Repairs teams.
+How register data is structured, sorted, filtered and searched	Standardising contractor survey or certificate formats, which are legal documents
+Linking register lines to their source surveys and documents	Operative training on reading surveys
+Automating survey and removal updates where safe to do so	
+Improve asbestos information for customer letters	
+Colour-coding features to show Asbestos detectability	
+3. Current Painpoints
+The current register is pulled straight from PIMS into the contractor portal. It holds every line from every survey, which overloads users with information. This work came out of feedback from the Assets and Property Repairs teams.
 #	Pain point	Raised by
 P1	The same location repeats many times (e.g. 10 to 12 instances of the lounge ceiling), so users have to pick through duplicates	Emma Jorgenson
 P2	Older data names the same location differently, so it is hard to tell what refers to what	Emma Jorgenson
@@ -33,90 +31,77 @@ P8	Surveys, waste consignment notes and air tests are mixed together in one list
 P9	Customer letters pull every PIMS line (about 20 where 7 would do), so the information confuses customers	Emma Jorgenson, Neil Thompson
 P10	Project managers spend a lot of time compiling registers for contractors, a task that could be passed to technical support	Sean Cairns
 P11	Existing filters are hard to use	Neil Thompson, Sean Cairns
-4. Stakeholders
-Name	Role / interest	Main contribution
-Victor Peters	Business Analyst, Workstream 1. Facilitator	Ran the session and summarised the requirements
-Alice Van Sertima	Innovation Project Manager	Explained Fabric's role and confirmed there will be further engagement
-Neil Thompson	Asbestos & Compliance Lead. Owns the data and the merge rules	Register vision, conflict rules, customer letter table
-Emma Jorgenson	Responsible person for asbestos for the organisation. Her team processes removals in PIMS	Naming, duplicates, survey linking, removals effort, customer letters
-Sean Cairns	Manages the project managers who compile asbestos registers for contractors	Simple register by address, red highlighting, passing compiling to technical support
-Stephen Dixon	Orders surveys (requester). Exact role to confirm	Survey labelling, conflicting results, alerts, separating documents, automation
-John Martin	His engineers read survey information on site. Exact role to confirm	Inconsistent certificate formats; properties needing surveys
-Gemma Hodgson	Role to confirm	Operative understanding of asbestos training (out of scope)
-
-Wider user groups (not present): Repairs, Assets and Compliance teams; subcontractors doing work on properties; survey contractors (e.g. Franks Portlock); Neighbourhoods, who issue asbestos information to customers; technical support staff, the proposed future register compilers; and customers.
-5. Current state (as-is)
-Asbestos information moves from survey contractors into PIMS by hand and reaches users as one long, unconsolidated list.
-1.	A survey is requested (refurbishment, targeted or management). Its status is tracked on a Smartsheet fed by the contractor, now rolled out to Major Repairs.
-2.	The contractor (currently Franks Portlock for all new surveys) emails the completed survey to the asbestos inbox.
-3.	Survey data is validated by hand, then loaded into PIMS in a weekly bulk upload, so there can be up to a week's delay.
-4.	Some teams skip the wait by saving surveys from the email into a house file for operatives.
-5.	Users see every line from every survey in the PIMS contractor portal. Positives are highlighted in red, the newest survey shows first, and there are basic filters.
-6.	When a removal is completed, the waste consignment note goes to Emma Jorgenson's team, who delete each matching line in PIMS by hand.
-7.	Customer letters embed a table pulled straight from PIMS.
-The old data warehouse (WhereScape) will be switched off early in 2027 and replaced by Fabric.
-6. Business objectives
-ID	Objective	Addresses	Possible measure (to confirm)
-OBJ-01	Give users one reliable, consolidated view of asbestos for each property ("one version of the truth")	P1, P2, P3	Lines per property reduced (e.g. from 25 to 30 down to about 6)
-OBJ-02	Make it quick to find the right asbestos information and its source document	P3, P4, P5, P8, P11	Time taken to compile a scheme register
-OBJ-03	Cut the delay and manual effort in getting survey and removal data into the register	P6, P7	Days from survey receipt to availability; manual removal effort
-OBJ-04	Make sure known asbestos is never hidden by newer or partial surveys	Safety	No positive items lost in consolidation
-OBJ-05	Give customers clear, accurate asbestos information about their home	P9	Proactive letters to long-standing tenants become possible
-OBJ-06	Let register compiling move from project managers to technical support	P10	Who compiles registers
-7. Business requirements
-There are 16 business requirements. BR-01 to BR-03 are Must, because stakeholders called them the minimum or safety-critical. The others are TBC until they are prioritised with stakeholders.
-ID	The business needs to…	Rationale	Obj.	Raised by	Priority
-BR-01	Have consistent names for locations and elements across all asbestos data, including historic data	Inconsistent names make data hard to read and block bulk removals	OBJ-01, 03	Emma Jorgenson	Must
-BR-02	See one entry per room or element for each property, combined across all surveys	Removes duplicates and information overload	OBJ-01	Emma Jorgenson, Neil Thompson	Must
-BR-03	Keep carrying forward findings from older surveys that newer surveys didn't inspect or supersede (e.g. no-access rooms, under-floor debris)	Partial surveys must not hide known asbestos	OBJ-04	Neil Thompson, Stephen Dixon	Must
-BR-04	See the source survey reference and date on each register line, and open that survey directly	Stops hunting for, or opening, the wrong survey	OBJ-02	Emma Jorgenson, Neil Thompson	TBC
-BR-05	Have survey documents clearly labelled so users know what a file is before opening it	Unlabelled downloads cause confusion	OBJ-02	Stephen Dixon, Emma Jorgenson	TBC
-BR-06	Get the full register for a property by entering its address	Agreed that searching by address alone is simplest	OBJ-02, 06	Sean Cairns, John Martin	TBC
-BR-07	Narrow a property's register to the room or area being worked on	Targeted works only need the relevant items	OBJ-02	Emma Jorgenson, Sean Cairns	TBC
-BR-08	See the most recent information first, with access to older surveys and full survey documents	Newest survey is the starting point; some users read whole surveys	OBJ-02	Sean Cairns, Neil Thompson	TBC
-BR-09	Spot asbestos-containing and presumed items at a glance (colour coding) and prioritise them over no-asbestos-detected items	Positives are the safety-critical information	OBJ-04	Stephen Dixon, Emma Jorgenson, Sean Cairns	TBC
-BR-10	Keep survey reports separate from other documents (waste consignment notes, air tests)	Users pick through mixed document types today	OBJ-02	Stephen Dixon	TBC
-BR-11	Be alerted to asbestos found outside the scope of the works a survey was ordered for	Extra items to remove or monitor aren't missed	OBJ-04	Stephen Dixon	TBC
-BR-12	Notify the person who requested a survey when it is complete and available	Reduces waiting and chasing	OBJ-03	Stephen Dixon	TBC
-BR-13	Get new survey data into the register faster, keeping manual validation where needed	Up to a week's delay today	OBJ-03	Stephen Dixon, Alice Van Sertima, Emma Jorgenson	TBC
-BR-14	Update the register promptly when a removal is evidenced (waste consignment note), with less manual effort	Around 120 removals a month are processed line by line	OBJ-03	Sean Cairns, Emma Jorgenson	TBC
-BR-15	Produce customer asbestos information from the consolidated register in a clear, customer-friendly format	Current letters confuse customers; clean data allows proactive letters	OBJ-05	Emma Jorgenson, Neil Thompson	TBC
-BR-16	Make the register simple enough for non-specialist staff to compile scheme registers	Frees project manager time	OBJ-06	Sean Cairns	TBC
-8. Functional requirements
-These set out what the solution must do, grouped by capability. They apply whichever front end is chosen.
-ID	Capability	The solution must/should…	Linked BR
-FR-01	Data	Map historic location and element names to one standard naming set, using the standardised column headers supplied by the Asbestos & Compliance Lead	BR-01
-FR-02	Data	Combine all survey lines for a property into one register line per room or element, leaving the full history in PIMS untouched	BR-02
-FR-03	Data	Apply the agreed precedence rules when surveys conflict (section 11)	BR-03
-FR-04	Register view	Show room, item, material, result, recommendation, survey reference and survey date on each register line	BR-04, 08
-FR-05	Register view	Provide an address search that returns the property's full register	BR-06, 16
-FR-06	Register view	Provide filters by room or area and by result (detected, presumed or no access, not detected)	BR-07, 09
-FR-07	Register view	Highlight asbestos-containing and presumed items visually (e.g. red, as in PIMS today) and sort them first by default	BR-09
-FR-08	Register view	Show the newest information first, with older surveys and the full history available on demand (e.g. "see more")	BR-08
-FR-09	Documents	Link each register line to its source survey document, opening in one click	BR-04
-FR-10	Documents	Label survey documents with at least survey type, survey date and property	BR-05
-FR-11	Documents	Group documents by type: surveys, waste consignment notes, air tests	BR-10
-FR-12	Alerts	Flag asbestos items in a newly received survey that fall outside the scope of works ordered	BR-11
-FR-13	Alerts	Notify the requester when their survey is available. Check first whether the contractor portal already does this	BR-12
-FR-14	Automation	Load surveys received in the asbestos inbox automatically, with a manual validation step where required	BR-13
-FR-15	Automation	Update the register when removal evidence is received, and attach the evidence to the property	BR-14
-FR-16	Customer output	Generate the asbestos table in customer letters from the consolidated register, showing positive items only	BR-15
-9. Non-functional requirements
+4. Current state (as-is)
+Asbestos information moves from survey contractors into PIMS and reaches users as one long, unconsolidated list.
+•	A survey is requested (refurbishment, targeted or management). Its status is tracked on a Smartsheet fed by the contractor.
+•	The contractor (currently Franks Portlock for all new surveys) emails the completed survey to the asbestos inbox.
+•	Survey data is validated by hand, then loaded into PIMS in a weekly bulk upload, so there can be up to a week's delay.
+•	Some teams skip the wait by saving surveys from the email into a house file for operatives.
+•	Users see every line from every survey in the PIMS contractor portal. Positives are highlighted in red, the newest survey shows first, and there are basic filters.
+•	When a removal is completed, the waste consignment note goes to Emma Jorgenson's team, who delete each matching line in PIMS by hand.
+•	Customer letters embed a table pulled straight from PIMS.
+5. Business objectives
+ID	Objective
+OBJ-01	Give users one reliable, consolidated view of asbestos for each property ("one version of the truth"), 25-30 lines down to about 6
+OBJ-02	Make it quick to find the right asbestos information and its source document
+OBJ-03	Cut the delay and manual effort in getting survey and removal data into the register
+OBJ-04	Make sure known asbestos is never hidden by newer or partial surveys
+OBJ-05	Give customers clear, accurate asbestos information about their home
+OBJ-06	See ways to ease register compiling so it can move from project managers to technical support
+6. Business requirements
+There are 16 business requirements
+ID	The business needs to…	Rationale
+BR-01	Have consistent names for locations and elements across all asbestos data, including historic data	Inconsistent names make data hard to read and block bulk removals
+BR-02	See one entry per room or element for each property, combined across all surveys	Removes duplicates and information overload
+BR-03	Keep carrying forward findings from older surveys that newer surveys didn't inspect or supersede (e.g. no-access rooms, under-floor debris)	Partial surveys must not hide known asbestos
+BR-04	See the source survey reference and date on each register line, and open that survey directly	Stops hunting for, or opening, the wrong survey
+BR-05	Have survey documents clearly labelled so users know what a file is before opening it	Unlabelled downloads cause confusion
+BR-06	Get the full register for a property by entering its address	Agreed that searching by address alone is simplest
+BR-07	Narrow a property's register to the room or area being worked on	Targeted works only need the relevant items
+BR-08	See the most recent information first, with access to older surveys and full survey documents	Newest survey is the starting point; some users read whole surveys
+BR-09	Spot asbestos-containing and presumed items at a glance (colour coding) and prioritise them over no-asbestos-detected items	Positives are the safety-critical information
+BR-10	Keep survey reports separate from other documents (waste consignment notes, air tests)	Users pick through mixed document types 
+BR-11	Be alerted to asbestos found outside the scope of the works a survey was ordered for	Extra items to remove or monitor aren't missed
+BR-12	Notify the person who requested a survey when it is complete and available	Reduces waiting and chasing
+BR-13	Get new survey data into the register faster, keeping manual validation where needed	Up to a week's delay today
+BR-14	Update the register promptly when a removal is evidenced (waste consignment note), with less manual effort	Around 120 removals a month are processed line by line
+BR-15	Produce customer asbestos information from the consolidated register in a clear, customer-friendly format	Current letters confuse customers; clean data allows proactive letters
+BR-16	Make the register simple enough for non-specialist staff to compile scheme registers	Frees project manager time
+7. Functional requirements
+These set out what the solution must do to meet all business requirements.
+ID	The solution must/should…
+FR-01	Map historic location and element names to one standard naming set, using the standardised column headers supplied by the Asbestos & Compliance Lead
+FR-02	Combine all survey lines for a property into one register line per room or element, leaving the full history in PIMS untouched
+FR-03	Apply the agreed precedence rules when surveys conflict.
+FR-04	Show room, item, material, result, recommendation, survey reference and survey date on each register line
+FR-05	Provide an address search that returns the property's full register
+FR-06	Provide filters by room or area and by result (detected, presumed or no access, not detected)
+FR-07	Highlight asbestos-containing and presumed items visually (e.g. red, as in PIMS today) and sort them first by default
+FR-08	Show the newest information first, with older surveys and the full history available on demand (e.g. "see more")
+FR-09	Link each register line to its source survey document, opening in one click
+FR-10	Label survey documents with at least survey type, survey date and property
+FR-11	Group documents by type: surveys, waste consignment notes, air tests
+FR-12	Flag asbestos items in a newly received survey that fall outside the scope of works ordered
+FR-13	Notify the requester when their survey is available. ** To Check whether the contractor portal already does this
+FR-14	Load surveys received in the asbestos inbox automatically, with a manual validation step where required
+FR-15	Update the register when removal evidence is received, and attach the evidence to the property
+FR-16	Generate the asbestos table in customer letters from the consolidated register, showing positive items only
+8. Non-functional requirements
 ID	Category	Requirement
 NFR-01	Safety / accuracy	Consolidation must never suppress or lose an asbestos-positive or presumed item
 NFR-02	Control	Automated loads must keep a human review point where surveys or consignment notes may carry important observations
-NFR-03	Access	Must support access by internal teams, subcontractors and survey contractors, with suitable permissions (permission model to be defined)
+NFR-03	Access	Must support access by internal teams, subcontractors and survey contractors, with suitable permissions 
 NFR-04	Timeliness	Data should be available sooner than the current weekly cycle (target to be agreed)
 NFR-05	Usability	Must be simple enough for non-specialists, without users having to work out filters by hand
 NFR-06	Integrity	Source survey documents must never be altered, as they are legal records
-NFR-07	Traceability	The full survey history stays in PIMS and can be traced from each register line
-10. Data requirements
-•	Register fields: location, floor, room, item assessed, material, result (detected / not detected / presumed / no access), recommendation, survey reference, survey date, survey type.
+NFR-07	Traceability	The full survey history stays in PIMS/Fabric and can be traced from each register line
+9. Data requirements
+•	Register fields: location, floor, room, item assessed, material, result (detected / not detected / presumed / no access), survey type, etc. (Neil already provided this to the Data engineers and Analysts)
 •	Related documents: survey PDFs (including photos), waste consignment notes, removal certificates, air tests.
 •	Data sources: PIMS (master), the survey contractor portal, the asbestos email inbox, and the Smartsheet survey tracker.
 •	Known quality issues: inconsistent terminology, unpopulated columns, many nulls and blanks. Standardised column headers have been supplied, and the data is being reconciled.
 •	Survey structure varies by contractor: for the same property, one contractor lists every element (about 96 lines) and another lists per room (about 12 lines). Consolidation must handle both.
-11. Business rules
+10. Business rules
 Neil Thompson will confirm the final rules. This is the starting position agreed in the session.
 ID	Rule
 RULE-01	An older positive result overrides a newer negative for the same item, unless there is removal evidence
@@ -124,77 +109,55 @@ RULE-02	Removal evidence (a waste consignment note or removal certificate) takes
 RULE-03	Areas not re-inspected by a newer survey (no access, out of scope) carry forward the latest finding that covered them
 RULE-04	Edge cases need specific rules, to be defined by the Asbestos & Compliance Lead: textured coatings sampled several times, composite (single-bag) sampling, and ceilings replaced after 2000
 RULE-05	Customer letters show asbestos-positive items only
-12. User stories
+11. User stories
 Each story maps one-to-one to a business requirement and inherits its priority.
-ID	As a…	I want…	So that…	BR	Priority
-US-01	register user	locations and elements named the same way across all surveys	I can tell at a glance what refers to what	BR-01	Must
-US-02	register user	one entry per room or element for each property	I don't have to pick through duplicates	BR-02	Must
-US-03	Asbestos & Compliance Lead	findings from older surveys that newer ones didn't cover to stay on the register	known asbestos is never hidden	BR-03	Must
-US-04	register user	each line to show its survey and date, and to open that survey in one click	I don't hunt for, or open, the wrong document	BR-04	TBC
-US-05	survey requester	survey documents clearly labelled	I know what I'm opening before I open it	BR-05	TBC
-US-06	project manager	to enter an address and get the full register for that property	I can put a register together for contractors quickly	BR-06	TBC
-US-07	operative planning targeted works	to filter the register to the room or area I'm working in	I only see what is relevant to my job	BR-07	TBC
-US-08	register user	the latest information first, with older surveys and full reports a click away	I can check the history when I need to	BR-08	TBC
-US-09	register user	asbestos-containing and presumed items highlighted and listed first	I spot the risks straight away	BR-09	TBC
-US-10	register user	surveys kept separate from consignment notes and air tests	I can go straight to the report I need	BR-10	TBC
-US-11	survey requester	to be alerted when a survey finds asbestos outside the area I ordered it for	extra removal or monitoring work isn't missed	BR-11	TBC
-US-12	survey requester	to be told when my survey is ready	I'm not left chasing it	BR-12	TBC
-US-13	member of the Asbestos team	new surveys loaded automatically, with a check where one is needed	users see new data in days, not a week	BR-13	TBC
-US-14	member of the Asbestos team	the register to update when a removal's consignment note arrives	we stop deleting lines by hand	BR-14	TBC
-US-15	Neighbourhoods officer	customer letters built from the clean register	customers get clear, accurate information	BR-15	TBC
-US-16	project manager	the register to be simple enough for technical support staff to use	I can hand register compiling over to them	BR-16	TBC
+ID	As a…	I want…	So that…	Priority
+US-01	register user	locations and elements named the same way across all surveys	I can tell at a glance what refers to what	Must
+US-02	register user	one entry per room or element for each property	I don't have to pick through duplicates	Must
+US-03	Asbestos & Compliance Lead	findings from older surveys that newer ones didn't cover to stay on the register	known asbestos is never hidden	Must
+US-04	register user	each line to show its survey and date, and to open that survey in one click	I don't hunt for, or open, the wrong document	TBC
+US-05	survey requester	survey documents clearly labelled	I know what I'm opening before I open it	TBC
+US-06	project manager	to enter an address and get the full register for that property	I can put a register together for contractors quickly	TBC
+US-07	operative planning targeted works	to filter the register to the room or area I'm working in	I only see what is relevant to my job	TBC
+US-08	register user	the latest information first, with older surveys and full reports a click away	I can check the history when I need to	TBC
+US-09	register user	asbestos-containing and presumed items highlighted and listed first	I spot the risks straight away	TBC
+US-10	register user	surveys kept separate from consignment notes and air tests	I can go straight to the report I need	TBC
+US-11	survey requester	to be alerted when a survey finds asbestos outside the area I ordered it for	extra removal or monitoring work isn't missed	TBC
+US-12	survey requester	to be told when my survey is ready	I'm not left chasing it	TBC
+US-13	member of the Asbestos team	new surveys loaded automatically, with a check where one is needed	users see new data in days, not a week	TBC
+US-14	member of the Asbestos team	the register to update when a removal's consignment note arrives	we stop deleting lines by hand	TBC
+US-15	Neighbourhoods officer	customer letters built from the clean register	customers get clear, accurate information	TBC
+US-16	project manager	the register to be simple enough for technical support staff to use	I can hand register compiling over to them	TBC
 13. Constraints, assumptions, dependencies and risks
 Constraints
-•	PIMS remains the master database. Fabric is where data is improved and prepared; it is not a new system for end users.
-•	Survey and certificate formats can't be standardised or changed after the fact. They are legal documents, and the business has limited influence over contractor templates.
+•	PIMS still exists. Asbestos data is ingested in Fabric.
+•	Survey and certificate formats can't be standardised or changed. They are legal documents, and the business has limited influence over contractor templates.
 •	WhereScape is switched off early in 2027.
 Assumptions
 •	The standardised column headers from the Asbestos & Compliance Lead are the agreed target structure.
 •	Whichever front end is chosen can support search, filters, colour coding and document links.
 •	Survey contractors will continue to supply survey data in a consistent structure that can be loaded automatically.
 Dependencies
-•	The Asbestos & Compliance Lead defining the conflict and precedence rules (RULE-04) before the consolidation logic is built.
+•	The Asbestos & Compliance Lead defining the conflict and precedence rules before the consolidation logic is built.
 •	The data cleansing and reconciliation already under way.
 •	The decision on which front end will show the register.
 •	Possible existing contractor portal features for requester notifications.
 Risks
 Risk	Impact	Suggested owner
 Consolidation rules wrongly hide a positive item	High: health and safety, and legal exposure	Asbestos & Compliance Lead
-Automation skips review of observations noted on surveys or consignment notes	Medium to high: site information missed	Responsible person for asbestos
-Stakeholders unclear about Fabric versus PIMS, which affects buy-in	Medium	Innovation Project Manager
-Historic naming can't be fully mapped	Medium: duplicates remain	Workstream 1 engineers
+Automation skips review of observations noted on surveys or consignment notes	Medium	Responsible person for asbestos
+Historic naming can't be fully mapped	Medium: duplicates remain	Workstream 1 Data engineers
 Scope creep into handhelds, training and survey programmes	Medium	Business Analyst
+
 14. Open questions and points to resolve
-Points to resolve
-ID	Point	Proposed resolution
-C-01	Some users want only the latest survey shown. However, older findings must carry forward where newer surveys didn't cover an area.	Show the consolidated register by default, with full survey history behind "see more" (FR-08)
-C-02	John Martin asked for one certificate format, but surveys are legal documents and can't be standardised.	Meet the underlying readability need through a consistent register view. Confirm with John Martin
-C-03	Sean Cairns prefers reading the whole survey; others want a room-filtered view.	Provide both (BR-07, BR-08)
-Open questions
 ID	Question	Ask
 Q-01	What are the full precedence rules for conflicting results and edge cases?	Neil Thompson
-Q-02	Where will the register be shown (PIMS contractor portal, Salesforce, other), and when will that be decided?	Alice Van Sertima
-Q-03	Who needs access (internal teams, subcontractors, survey contractors), and what should each be able to see?	Neil Thompson
+Q-03	Who needs access (internal teams, subcontractors, survey contractors)?	Neil Thompson
 Q-04	Which manual validation checks must stay before data is loaded, and which could be automated?	Neil Thompson, Emma Jorgenson
 Q-05	How will the solution know the scope of works a survey was ordered for, so it can flag items outside it?	Stephen Dixon
 Q-06	Does the contractor portal's existing notification already meet BR-12?	Neil Thompson
 Q-07	What is the target time from receiving a survey to it appearing in the register?	Neil Thompson
-Q-08	What are the exact roles of Stephen Dixon, John Martin and Gemma Hodgson?	Alice Van Sertima
-Q-09	Should Neighbourhoods be engaged on what customer letters need?	Emma Jorgenson
-15. Next steps
-1.	Circulate this document to attendees to confirm the requirements and set priorities for the TBC items.
-2.	Walk through the existing asbestos contractor portal to record what works today and what to keep.
-3.	Build a prototype of the new register view based on the Must requirements and agreed priorities.
-4.	Review the prototype with stakeholders and refine the requirements.
-Glossary
-Term	Meaning
-PIMS	The master asbestos/compliance database, which holds every survey line
-Contractor portal	The current front end that shows PIMS asbestos data to staff and contractors
-Fabric	Microsoft Fabric. A suite of data tools, including Power BI, and the new data platform replacing WhereScape. Not a new system for end users
-Register	A consolidated, property-level view of asbestos: one line per room or element
-Management survey	A routine survey with limited intrusion
-Refurbishment / targeted survey	An intrusive survey of an area before works
-Waste consignment note	Evidence that asbestos has been removed and disposed of
-Air test	An air clearance test carried out after removal
-Presumed / no access	An area not inspected, so it is treated as possibly containing asbestos
+Q-09	what information does customer letters need?	Emma Jorgenson
+
+15. Next Steps:
 
